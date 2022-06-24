@@ -1,4 +1,4 @@
-package com.example.selenium_learning;
+package com.example.selenium_learning.locators;
 
 import java.time.Duration;
 
@@ -33,7 +33,7 @@ public class SeleniumLocators2 {
 		
 		driver.findElement(By.xpath("//button[text()='Log Out']")).click();
 		
-		driver.close();
+		driver.quit();
 	}
 
 }

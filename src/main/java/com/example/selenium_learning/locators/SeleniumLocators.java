@@ -1,4 +1,4 @@
-package com.example.selenium_learning;
+package com.example.selenium_learning.locators;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -25,7 +25,7 @@ public class SeleniumLocators {
 		
 		driver.findElement(By.linkText("Forgot your password?")).click();
 		
-		Thread.sleep(1000l);
+		Thread.sleep(1000);
 		
 		driver.findElement(By.xpath(("//input[@type='text'][@placeholder='Name']"))).sendKeys("rahul");
 		driver.findElement(By.cssSelector("input[type='text'][placeholder='Email'")).sendKeys("rahul@ail.com");

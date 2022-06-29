@@ -8,8 +8,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 public class BrowserAlert {
 
 	public static void main(String[] args) throws InterruptedException {
-		System.setProperty("webdriver.chrome.driver", "D:/Softwares/chromedriver.exe");
-		ChromeDriver driver = new ChromeDriver();
+		WebDriver driver = DriverUtility.getDriver(BrowserName.CHROME);
 		
 		driver.get("https://www.rahulshettyacademy.com/AutomationPractice");
 		driver.findElement(By.id("name")).sendKeys("Abhishek");

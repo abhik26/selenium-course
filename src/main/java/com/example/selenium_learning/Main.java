@@ -19,7 +19,7 @@ public class Main {
 		System.setProperty("webdriver.edge.driver", "D:/Softwares/msedgedriver.exe");
 		WebDriver driver = new EdgeDriver();
 		
-		driver.get("https://www.facebook.com");
+		driver.get("https://www.google.com");
 		System.out.println(driver.getCurrentUrl());
 		System.out.println(driver.getTitle());
 		driver.quit();

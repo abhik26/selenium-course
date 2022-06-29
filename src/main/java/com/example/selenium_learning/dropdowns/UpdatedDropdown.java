@@ -4,11 +4,13 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 
+import com.example.selenium_learning.BrowserName;
+import com.example.selenium_learning.DriverUtility;
+
 public class UpdatedDropdown {
 
 	public static void main(String[] args) throws InterruptedException {
-		System.setProperty("webdriver.chrome.driver", "D:/Softwares/chromedriver.exe");
-		WebDriver driver = new ChromeDriver();
+		WebDriver driver = DriverUtility.getDriver(BrowserName.CHROME);
 		
 		driver.get("https://www.rahulshettyacademy.com/dropdownsPractise");
 		driver.findElement(By.id("divpaxinfo")).click();

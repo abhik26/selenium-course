@@ -10,8 +10,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 public class AutoSuggestiveInput {
 
 	public static void main(String[] args) throws InterruptedException {
-		System.setProperty("webdriver.chrome.driver", "D:/Softwares/chromedriver.exe");
-		WebDriver driver = new ChromeDriver();
+		WebDriver driver = DriverUtility.getDriver(BrowserName.CHROME);
 		
 		driver.get("https://www.rahulshettyacademy.com/dropdownsPractise");
 		driver.findElement(By.id("autosuggest")).sendKeys("ind");

@@ -8,10 +8,12 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 
+import com.example.selenium_learning.BrowserName;
+import com.example.selenium_learning.DriverUtility;
+
 public class SeleniumLocators {
 	public static void main(String[] args) throws IOException, InterruptedException {
-		System.setProperty("webdriver.chrome.driver", "D:/Softwares/chromedriver.exe");
-		WebDriver driver = new ChromeDriver();
+		WebDriver driver = DriverUtility.getDriver(BrowserName.CHROME);
 		
 		// global timeout option for the driver
 		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));

@@ -9,8 +9,7 @@ import org.testng.Assert;
 public class End2End {
 
 	public static void main(String[] args) throws InterruptedException {
-		System.setProperty("webdriver.chrome.driver", "D:/Softwares/chromedriver.exe");
-		WebDriver driver = new ChromeDriver();
+		WebDriver driver = DriverUtility.getDriver(BrowserName.CHROME);
 		
 		driver.get("https://www.rahulshettyacademy.com/dropdownsPractise");
 		driver.findElement(By.id("ctl00_mainContent_rbtnl_Trip_0")).click();
@@ -40,7 +39,7 @@ public class End2End {
 		driver.findElement(By.id("ctl00_mainContent_chk_friendsandfamily")).click();
 		driver.findElement(By.id("ctl00_mainContent_btn_FindFlights")).click();
 		
-		Thread.sleep(5000);
+		Thread.sleep(2000);
 		driver.quit();
 	}
 

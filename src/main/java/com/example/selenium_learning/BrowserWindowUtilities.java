@@ -6,8 +6,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 public class BrowserWindowUtilities {
 
 	public static void main(String[] args) throws InterruptedException {
-		System.setProperty("webdriver.chrome.driver", "D:/Softwares/chromedriver.exe");
-		WebDriver driver = new ChromeDriver();
+		WebDriver driver = DriverUtility.getDriver(BrowserName.CHROME);
 		
 		// open browser window in maximize mode
 		driver.manage().window().maximize();

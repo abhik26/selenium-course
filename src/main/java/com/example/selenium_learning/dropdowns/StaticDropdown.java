@@ -6,11 +6,13 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.Select;
 
+import com.example.selenium_learning.BrowserName;
+import com.example.selenium_learning.DriverUtility;
+
 public class StaticDropdown {
 
 	public static void main(String[] args) throws InterruptedException {
-		System.setProperty("webdriver.chrome.driver", "D:/Softwares/chromedriver.exe");
-		WebDriver driver = new ChromeDriver();
+		WebDriver driver = DriverUtility.getDriver(BrowserName.CHROME);
 		
 		driver.get("https://www.rahulshettyacademy.com/dropdownsPractise");
 		WebElement webElement = driver.findElement(By.id("ctl00_mainContent_DropDownListCurrency"));

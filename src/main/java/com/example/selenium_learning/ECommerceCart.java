@@ -1,5 +1,6 @@
 package com.example.selenium_learning;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
@@ -7,6 +8,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class ECommerceCart {
 
@@ -15,10 +18,15 @@ public class ECommerceCart {
 		WebDriver driver = new ChromeDriver();
 		String[] items = {"Brocolli", "Beetroot", "Carrot", "Tomato"};
 		
-		driver.get("https://rahulshettyacademy.com/seleniumPractise");
-		addItemsToCart(driver, items);
+		// Implicit wait, this wait method is applied globally
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(2));
 		
-		Thread.sleep(5000);
+		
+		driver.get("https://rahulshettyacademy.com/seleniumPractise");
+		ECommerceCart.addItemsToCart(driver, items);
+		ECommerceCart.proceedToCheckout(driver);
+		
+		Thread.sleep(2000);
 		driver.quit();
 	}
 	
@@ -26,7 +34,7 @@ public class ECommerceCart {
 		List<String> itemList = Arrays.asList(items);
 		int itemsAdded = 0;
 		
-		Thread.sleep(3000);
+//		Thread.sleep(3000);
 		
 		List<WebElement> products = driver.findElements(By.xpath("//div[@class='product']"));
 		
@@ -43,5 +51,22 @@ public class ECommerceCart {
 				}
 			}
 		}
+	}
+	
+	public static void proceedToCheckout(WebDriver driver) throws InterruptedException {
+		driver.findElement(By.cssSelector("a[class='cart-icon'")).click();
+		driver.findElement(By.xpath(
+				"//div[contains(@class, 'cart-preview')]/div[@class='action-block']/button"))
+						.click();
+//		Thread.sleep(3000);
+		driver.findElement(By.xpath("//input[@class='promoCode']")).sendKeys("rahulshettyacademy");
+		driver.findElement(By.xpath("//button[@class='promoBtn']")).click();
+		
+		// Explicit wait, this wait method executes on certain condition only
+		WebDriverWait explicitWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+		explicitWait.until(ExpectedConditions.visibilityOfElementLocated(
+				By.xpath("//span[@class='promoInfo']")));
+		
+		System.out.println(driver.findElement(By.xpath("//span[@class='promoInfo']")).getText());
 	}
 }

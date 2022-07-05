@@ -18,7 +18,7 @@ public class Assignment7 {
 		WebElement leftTable = driver.findElement(By.cssSelector(".left-align #product"));
 		System.out.println(leftTable.findElements(By.cssSelector("tr")).size());
 		System.out.println(leftTable.findElements(By.cssSelector("tr:nth-child(1) th")).size());
-		List<WebElement> row2Data = leftTable.findElements(By.cssSelector("tr:nth-child(2) td"));
+		List<WebElement> row2Data = leftTable.findElements(By.cssSelector("tr:nth-child(3) td"));
 		
 		for (WebElement column : row2Data) {
 			System.out.println(column.getText());

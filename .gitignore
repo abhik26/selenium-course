@@ -229,4 +229,6 @@ buildNumber.properties
 # Ignore TestNG files
 test-output/*
 
-# End of https://www.toptal.com/developers/gitignore/api/maven,java,eclipse,intellij+all,visualstudiocode
+/.apt_generated_tests/
+
+reports/

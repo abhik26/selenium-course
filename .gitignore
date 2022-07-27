@@ -227,8 +227,10 @@ buildNumber.properties
 *.code-workspace
 
 # Ignore TestNG files
-test-output/*
+test-output/
 
-/.apt_generated_tests/
-
+# Ignore extend report folders
 reports/
+
+# Ignore folder for local files
+src/main/resources/localdata/

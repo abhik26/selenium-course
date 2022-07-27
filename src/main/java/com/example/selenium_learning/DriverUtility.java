@@ -14,23 +14,31 @@ public class DriverUtility {
 			throw new NullPointerException("browser name is not provided");
 		}
 		
-		switch (browserName) {
-			case CHROME:
-				System.setProperty("webdriver.chrome.driver", "D:/Softwares/chromedriver.exe");
-				driver = new ChromeDriver();
-				break;
-			case EDGE:
-				System.setProperty("webdriver.edge.driver", "D:/Softwares/msedgedriver.exe");
-				driver = new EdgeDriver();
-				break;
-			case FIREFOX:
-				System.setProperty("webdriver.gecko.driver", "D:/Softwares/geckodriver.exe");
-                driver = new FirefoxDriver();
-				break;
-			default:
-				System.setProperty("webdriver.chrome.driver", "D:/Softwares/chromedriver.exe");
-				driver = new ChromeDriver();
-				break;
+		try {
+			switch (browserName) {
+				case CHROME:
+					System.setProperty("webdriver.chrome.driver",
+							ClassLoader.getSystemResource("localdata/chromedriver.exe").toURI().getPath());
+					driver = new ChromeDriver();
+					break;
+				case EDGE:
+					System.setProperty("webdriver.edge.driver",
+							ClassLoader.getSystemResource("localdata/msedgedriver.exe").toURI().getPath());
+					driver = new EdgeDriver();
+					break;
+				case FIREFOX:
+					System.setProperty("webdriver.gecko.driver",
+							ClassLoader.getSystemResource("localdata/geckodriver.exe").toURI().getPath());
+	                driver = new FirefoxDriver();
+					break;
+				default:
+					System.setProperty("webdriver.chrome.driver",
+							ClassLoader.getSystemResource("localdata/chromedriver.exe").toURI().getPath());
+					driver = new ChromeDriver();
+					break;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		
 		return driver;

@@ -2,6 +2,7 @@ package com.example.spreedsheet;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -12,8 +13,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class SpreadsheetDemo {
 
-	public static void main(String[] args) throws IOException {
-		FileInputStream fis = new FileInputStream("D:\\Documents\\Course-Material\\selenium-course.xlsx");
+	public static void main(String[] args) throws IOException, URISyntaxException {
+		FileInputStream fis = new FileInputStream(ClassLoader
+				.getSystemResource("data.xlsx").toURI().getPath());
 		XSSFWorkbook workbook = new XSSFWorkbook(fis);
 		
 		for (CellType cellType : CellType.values()) {

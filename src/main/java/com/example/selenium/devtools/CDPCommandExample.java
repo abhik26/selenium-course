@@ -1,4 +1,4 @@
-package com.example.selenium.grid;
+package com.example.selenium.devtools;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -11,22 +11,27 @@ public class HomePage {
 	private WebDriver driver;
 	
 	@Test(dataProvider = "getData")
-	public void basePageNavigation(String username, String password) throws InterruptedException {
+	public void basePageNavigation(String username, String password) {
 		driver = DriverUtility.getDriver(BrowserName.CHROME);
 		
-		driver.get("http://qaclickacademy.com");
-		
-		LandingPage lp = new LandingPage(driver);
-		
-		Assert.assertEquals(lp.getTitle().getText(), "FEATURED COURSES");
-		
-		lp.getLogin().click();
-		
-		LoginPage loginPage = new LoginPage(driver);
-		loginPage.login(username, password);
-		
-		Thread.sleep(2000);
-		driver.quit();
+		try {
+			driver.get("http://qaclickacademy.com");
+			
+			LandingPage lp = new LandingPage(driver);
+			
+			Assert.assertEquals(lp.getTitle().getText(), "FEATURED COURSES");
+			
+			lp.getLogin().click();
+			
+			LoginPage loginPage = new LoginPage(driver);
+			loginPage.login(username, password);
+			
+			Thread.sleep(2000);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			driver.quit();
+		}
 	}
 	
 	@DataProvider

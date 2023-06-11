@@ -1,9 +1,6 @@
 package endToEndProject;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.OutputType;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;

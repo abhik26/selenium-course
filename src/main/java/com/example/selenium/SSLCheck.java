@@ -30,13 +30,17 @@ public class SSLCheck {
 		
 		WebDriver driver = new ChromeDriver(options);
 		
-		driver.manage().deleteAllCookies();					// deleting all cookies
-		driver.manage().deleteCookieNamed("cookieName");	// delete some specific cookie with name
-		
-		driver.get("https://expired.badssl.com");
-		System.out.println(driver.getTitle());
-		
-		driver.quit();
+		try {
+			driver.manage().deleteAllCookies();					// deleting all cookies
+			driver.manage().deleteCookieNamed("cookieName");	// delete some specific cookie with name
+			
+			driver.get("https://expired.badssl.com");
+			System.out.println(driver.getTitle());
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			driver.quit();
+		}
 	}
 
 }

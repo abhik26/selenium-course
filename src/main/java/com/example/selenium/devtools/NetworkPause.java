@@ -5,8 +5,8 @@ import java.util.Optional;
 import org.openqa.selenium.By;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.devtools.DevTools;
-import org.openqa.selenium.devtools.v103.fetch.Fetch;
-import org.openqa.selenium.devtools.v103.network.model.Request;
+import org.openqa.selenium.devtools.v113.fetch.Fetch;
+import org.openqa.selenium.devtools.v113.network.model.Request;
 
 import com.example.selenium.BrowserName;
 import com.example.selenium.DriverUtility;

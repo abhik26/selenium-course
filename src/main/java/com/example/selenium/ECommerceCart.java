@@ -12,20 +12,24 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class ECommerceCart {
 
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) {
 		WebDriver driver = DriverUtility.getDriver(BrowserName.CHROME);
 		String[] items = {"Brocolli", "Beetroot", "Carrot", "Tomato"};
 		
 		// Implicit wait, this wait method is applied globally
 		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(2));
 		
-		
-		driver.get("https://rahulshettyacademy.com/seleniumPractise");
-		ECommerceCart.addItemsToCart(driver, items);
-		ECommerceCart.proceedToCheckout(driver);
-		
-		Thread.sleep(2000);
-		driver.quit();
+		try {
+			driver.get("https://rahulshettyacademy.com/seleniumPractise");
+			ECommerceCart.addItemsToCart(driver, items);
+			ECommerceCart.proceedToCheckout(driver);
+			
+			Thread.sleep(2000);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			driver.quit();
+		}
 	}
 	
 	public static void addItemsToCart(WebDriver driver, String[] items) throws InterruptedException {

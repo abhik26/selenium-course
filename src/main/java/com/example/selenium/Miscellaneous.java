@@ -1,13 +1,11 @@
 package com.example.selenium;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
-import org.openqa.selenium.By;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.Proxy;
 import org.openqa.selenium.TakesScreenshot;
@@ -17,7 +15,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 
 public class Miscellaneous {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		System.setProperty("webdriver.chrome.driver", "D:/Softwares/chromedriver.exe");
 		
 		ChromeOptions options = new ChromeOptions();
@@ -39,15 +37,19 @@ public class Miscellaneous {
 		
 		WebDriver driver = new ChromeDriver(options);
 		
-//		driver.manage().deleteAllCookies();					// deleting all cookies
-//		driver.manage().deleteCookieNamed("cookieName");	// delete some specific cookie with name
-		
-		driver.get("https://google.com");
-		
-		File src = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-		FileUtils.copyFile(src, new File("D:/Downloads/Selenium_Automation_Downloads/temp.png"));
-		
-//		driver.quit();
+		try {
+//			driver.manage().deleteAllCookies();					// deleting all cookies
+//			driver.manage().deleteCookieNamed("cookieName");	// delete some specific cookie with name
+			
+			driver.get("https://google.com");
+			
+			File src = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+			FileUtils.copyFile(src, new File("D:/Downloads/Selenium_Automation_Downloads/temp.png"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			driver.quit();
+		}
 	}
 
 }

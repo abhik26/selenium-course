@@ -14,9 +14,9 @@ public class CDPCommandExample {
 
 	public static void main(String[] args) {
 		ChromeDriver driver = (ChromeDriver) DriverUtility.getDriver(BrowserName.CHROME);
-		DevTools devTools = driver.getDevTools();
 		
 		try {
+			DevTools devTools = driver.getDevTools();
 			devTools.createSession();
 			
 			Map<String, Object> deviceMetrics = new HashMap<String, Object>();

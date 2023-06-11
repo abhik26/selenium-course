@@ -14,10 +14,11 @@ public class SeleniumGridExample {
 	@Test
 	public void testGoogle() {
 		WebDriver driver = null;
-		DesiredCapabilities caps = new DesiredCapabilities();
-		caps.setBrowserName("chrome");
 		
 		try {
+			DesiredCapabilities caps = new DesiredCapabilities();
+			caps.setBrowserName("chrome");
+			
 			URL url = new URL("http://192.168.1.11:4444");
 			driver = new RemoteWebDriver(url, caps);
 			driver.get("https://google.com");

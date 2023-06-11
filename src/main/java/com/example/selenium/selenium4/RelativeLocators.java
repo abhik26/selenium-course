@@ -12,17 +12,24 @@ public class RelativeLocators {
 
 	public static void main(String[] args) {
 		WebDriver driver = DriverUtility.getDriver(BrowserName.CHROME);
-		driver.get("https://rahulshettyacademy.com/angularpractice/");
-		WebElement nameInput = driver.findElement(By.cssSelector("input[name='name']"));
 		
-		System.out.println(driver.findElement(RelativeLocator.with(By.tagName("label")).above(nameInput)).getText());
-		System.out.println(
-				driver.findElement(RelativeLocator.with(By.tagName("label")).toRightOf(By.id("exampleCheck1"))).getText());
-		
-		driver.findElement(RelativeLocator.with(By.tagName("input")).below(By.cssSelector("[for='dateofBirth']")))
-				.click();
-		
-		driver.quit();
+		try {
+			driver.get("https://rahulshettyacademy.com/angularpractice/");
+			WebElement nameInput = driver.findElement(By.cssSelector("input[name='name']"));
+			
+			System.out.println(driver.findElement(RelativeLocator.with(By.tagName("label")).above(nameInput)).getText());
+			System.out.println(
+					driver.findElement(RelativeLocator.with(By.tagName("label")).toRightOf(By.id("exampleCheck1"))).getText());
+			
+			driver.findElement(RelativeLocator.with(By.tagName("input")).below(By.cssSelector("[for='dateofBirth']")))
+					.click();
+			
+			Thread.sleep(2000);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			driver.quit();
+		}
 	}
 
 }

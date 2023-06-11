@@ -18,7 +18,7 @@ public class BasicAuthentication {
 			
 			driver.get("http://httpbin.org/basic-auth/foo/bar");
 			
-			Thread.sleep(5000);
+			Thread.sleep(2000);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

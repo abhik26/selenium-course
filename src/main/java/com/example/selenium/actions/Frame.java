@@ -10,19 +10,25 @@ import com.example.selenium.DriverUtility;
 
 public class Frame {
 
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) {
 		WebDriver driver = DriverUtility.getDriver(BrowserName.CHROME);
-		driver.get("https://jqueryui.com/droppable");
 		
-		driver.switchTo().frame(driver.findElement(By.cssSelector("iframe.demo-frame")));
-		Actions action = new Actions(driver);
-		WebElement sourceElement = driver.findElement(By.id("draggable"));
-		WebElement targetElement = driver.findElement(By.id("droppable"));
-		action.dragAndDrop(sourceElement, targetElement).build().perform();
-		driver.switchTo().defaultContent();
-		
-		Thread.sleep(2000);
-		driver.quit();
+		try {
+			driver.get("https://jqueryui.com/droppable");
+			
+			driver.switchTo().frame(driver.findElement(By.cssSelector("iframe.demo-frame")));
+			Actions action = new Actions(driver);
+			WebElement sourceElement = driver.findElement(By.id("draggable"));
+			WebElement targetElement = driver.findElement(By.id("droppable"));
+			action.dragAndDrop(sourceElement, targetElement).build().perform();
+			driver.switchTo().defaultContent();
+			
+			Thread.sleep(2000);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			driver.quit();
+		}
 	}
 
 }

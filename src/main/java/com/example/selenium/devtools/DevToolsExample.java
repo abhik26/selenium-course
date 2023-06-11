@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.openqa.selenium.By;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.devtools.DevTools;
-import org.openqa.selenium.devtools.v103.emulation.Emulation;
+import org.openqa.selenium.devtools.v113.emulation.Emulation;
 
 import com.example.selenium.BrowserName;
 import com.example.selenium.DriverUtility;

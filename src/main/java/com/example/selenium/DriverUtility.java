@@ -22,6 +22,7 @@ public class DriverUtility {
 							ClassLoader.getSystemResource("localdata/chromedriver.exe").toURI().getPath());
 					ChromeOptions options = new ChromeOptions();
 					options.addArguments("--remote-allow-origins=*");
+					options.addArguments("--start-maximized");
 					driver = new ChromeDriver(options);
 					break;
 				case EDGE:

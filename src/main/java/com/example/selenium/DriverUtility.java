@@ -19,25 +19,26 @@ public class DriverUtility {
 			switch (browserName) {
 				case CHROME:
 					System.setProperty("webdriver.chrome.driver",
-							ClassLoader.getSystemResource("localdata/chromedriver.exe").toURI().getPath());
+							ClassLoader.getSystemResource("localdata/chromedriver.exe").getPath());
 					ChromeOptions options = new ChromeOptions();
 					options.addArguments("--remote-allow-origins=*");
 					options.addArguments("--start-maximized");
+					options.addArguments("--disable-notifications");
 					driver = new ChromeDriver(options);
 					break;
 				case EDGE:
 					System.setProperty("webdriver.edge.driver",
-							ClassLoader.getSystemResource("localdata/msedgedriver.exe").toURI().getPath());
+							ClassLoader.getSystemResource("localdata/msedgedriver.exe").getPath());
 					driver = new EdgeDriver();
 					break;
 				case FIREFOX:
 					System.setProperty("webdriver.gecko.driver",
-							ClassLoader.getSystemResource("localdata/geckodriver.exe").toURI().getPath());
+							ClassLoader.getSystemResource("localdata/geckodriver.exe").getPath());
 	                driver = new FirefoxDriver();
 					break;
 				default:
 					System.setProperty("webdriver.chrome.driver",
-							ClassLoader.getSystemResource("localdata/chromedriver.exe").toURI().getPath());
+							ClassLoader.getSystemResource("localdata/chromedriver.exe").getPath());
 					driver = new ChromeDriver();
 					break;
 			}

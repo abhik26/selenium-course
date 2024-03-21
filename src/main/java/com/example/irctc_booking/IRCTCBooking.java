@@ -66,11 +66,11 @@ public class IRCTCBooking {
 					.findElement(By.cssSelector("button[type='submit'][class='search_btn train_Search'"));
 			
 			/*
-			 * uncomment this if you are using this at tatkal time window i.e. between 10:00
-			 * AM to 12:00 PM
+			 * To be used at tatkal time window i.e. between 10:00 AM to 12:00 PM.
+			 * Comment when using outside tatkal time window.
 			 */
-//			trainSearchButton.click();
-//			signIn(driver, wait);
+			trainSearchButton.click();
+			signIn(driver);
 			
 			// From station
 			WebElement fromStationInput = driver.findElement(By.cssSelector("input[aria-controls='pr_id_1_list']"));
@@ -110,16 +110,18 @@ public class IRCTCBooking {
 			WebElement train = driver.findElement(By.xpath(
 					String.format("//strong[contains(text(), '(%s)')]/ancestor::div[contains(@class, 'border-all')]",
 							bookingProperties.getProperty("trainNumber"))));
-			
-			try {
-				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(2));
-				WebDriverWait wait1 = new WebDriverWait(driver, Duration.ofSeconds(2));
-				wait1.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[class='loading-bg']")));
-			} catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
-			}
+			/*
+			 * Can comment this piece of code at the time of tatkal window (be careful though).
+			 */
+//			try {
+//				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(2));
+//				WebDriverWait wait1 = new WebDriverWait(driver, Duration.ofSeconds(2));
+//				wait1.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[class='loading-bg']")));
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			} finally {
+//				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
+//			}
 			
 			actions.moveToElement(train).perform();
 			
@@ -137,27 +139,30 @@ public class IRCTCBooking {
 			WebElement bookTrainButton = train.findElement(By.xpath(".//button[contains(text(), 'Book Now')]"));
 			actions.click(bookTrainButton).perform();
 			
-			try {
-				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(2));
-				WebElement confirmButton = driver.findElement(
-						By.xpath("//span[@class='ui-button-text ui-clickable'][contains(text(), 'Yes')]"));
-				confirmButton.click();
-				wait.until(ExpectedConditions.invisibilityOf(confirmButton));
-			} catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
-			}
+			/*
+			 * Can comment this when booking during tatkal window and exact stations are mentioned.
+			 */
+//			try {
+//				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(2));
+//				WebElement confirmButton = driver.findElement(
+//						By.xpath("//span[@class='ui-button-text ui-clickable'][contains(text(), 'Yes')]"));
+//				confirmButton.click();
+//				wait.until(ExpectedConditions.invisibilityOf(confirmButton));
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			} finally {
+//				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
+//			}
 			
 			/*
-			 * sign in, uncomment below lines of code when using outside the tatkal time
-			 * window.
+			 * To be used outside the tatkal time window.
 			 */
-			signIn(driver);
+//			signIn(driver);
 			
 			/*
 			 * Code block to handle previous pending transaction popup, uncomment below
-			 * lines of code when booking outside tatkal time window.
+			 * lines of code when booking outside tatkal time window and you have
+			 * pending transaction.
 			 */
 //			try {
 //				WebElement closeTransactionButton = driver.findElement(By.xpath(
@@ -285,7 +290,9 @@ public class IRCTCBooking {
 		WebElement signInButton = driver.findElement(By.xpath("//button[@type='submit'][contains(text(), 'SIGN IN')]"));
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
 		wait.until(ExpectedConditions.elementToBeClickable(signInButton));
-		signInButton.click();
+		JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+		jsExecutor.executeScript("arguments[0].click()", signInButton);
+//		signInButton.click();
 		wait.until(ExpectedConditions.invisibilityOf(signInButton));
 	}
 	

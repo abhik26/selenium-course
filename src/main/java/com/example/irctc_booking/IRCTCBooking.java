@@ -3,8 +3,15 @@ package com.example.irctc_booking;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -20,11 +27,34 @@ import com.example.selenium.DriverUtility;
 
 public class IRCTCBooking {
 
-	private static String irctcUrl = "https://www.irctc.co.in/nget/train-search";
+	private static final String irctcUrl = "https://www.irctc.co.in/nget/train-search";
 	private static Properties bookingProperties = null;
+	
+	private static boolean tatkalWindow = false;
+	private static String seatLinkDateSearch = null;
+	
+	private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("EEE, dd MMM");
+	private static final DateTimeFormatter journeyDateFormattter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	private static final ZoneId indiaZoneId = ZoneId.of("Asia/Kolkata");
+	
+	private static enum BookingProperty {
+		USERNAME("irctcUsername"), PASSWORD("irctcPassword"), FROM_STATION("fromStationCode"),
+		TO_STATION("toStationCode"), JOURNEY_DATE("journeyDate"), QUOTA("quota"), TRAIN_NUMBER("trainNumber"),
+		TRAIN_CLASS("trainClass"), PASSENGER_COUNT("passengerCount"), UPI_ID("upiId");
+		
+		private final String name;
+
+		BookingProperty(String name) {
+			this.name = name;
+		}
+		
+		@Override
+		public String toString() {
+			return this.name;
+		}
+	}
 
 	static {
-		
 		FileInputStream fis = null;
 		
 		try {
@@ -44,44 +74,60 @@ public class IRCTCBooking {
 				}
 			}
 		}
-
+	}
+	
+	public static void main(String[] args) throws Exception {
+		LocalTime start = LocalTime.now();
+		
+		// start booking script
+		IRCTCBooking.startBooking();
+		
+		LocalTime end = LocalTime.now();
+		
+		System.out.println("Script duration for successful booking: " + Duration.between(start, end).toMillis());
 	}
 
-	public static void main(String[] args) {
+	private static void startBooking() throws Exception {
+		final int defaultImplicitWaitTime = 30;
+		final int defaultExplicitWaitTime = 30;
+		final int alternateImplicitWaitTime = 3;
 		
-		WebDriver driver = DriverUtility.getDriver(BrowserName.CHROME);
-		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+		final WebDriver driver = DriverUtility.getDriver(BrowserName.CHROME);
+		final WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(defaultExplicitWaitTime));
+		final JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+		final Actions actions = new Actions(driver);
 		
-		JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
-		Actions actions = new Actions(driver);
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(defaultImplicitWaitTime));
 		
 		boolean closeBrowser = true;
+		
+		IRCTCBooking.preBookingChecks();
 		
 		try {
 			driver.get(irctcUrl);
 			
 			// click search button to search train
-			WebElement trainSearchButton = driver
-					.findElement(By.cssSelector("button[type='submit'][class='search_btn train_Search'"));
+			WebElement trainSearchButton = driver.findElement(By.cssSelector(
+					"button[type='submit'][class='search_btn train_Search'"));
 			
 			/*
-			 * To be used at tatkal time window i.e. between 10:00 AM to 12:00 PM.
-			 * Comment when using outside tatkal time window.
+			 * To be used during tatkal window i.e. between 08:30 AM to 11:30 AM.
 			 */
-			trainSearchButton.click();
-			signIn(driver);
+			if (tatkalWindow) {
+				trainSearchButton.click();
+				signIn(driver, wait);
+			}
 			
 			// From station
 			WebElement fromStationInput = driver.findElement(By.cssSelector("input[aria-controls='pr_id_1_list']"));
-			fromStationInput.sendKeys(bookingProperties.getProperty("fromStationCode"));
+			fromStationInput.sendKeys(bookingProperties.getProperty(BookingProperty.FROM_STATION.toString()).trim());
 			WebElement fromStationOption = driver.findElement(By.cssSelector("#pr_id_1_list li:first-child"));
 			wait.until(ExpectedConditions.elementToBeClickable(fromStationOption));
 			fromStationOption.click();
 			
 			// To station
 			WebElement toStationInput = driver.findElement(By.cssSelector("input[aria-controls='pr_id_2_list']"));
-			toStationInput.sendKeys(bookingProperties.getProperty("toStationCode"));
+			toStationInput.sendKeys(bookingProperties.getProperty(BookingProperty.TO_STATION.toString()).trim());
 			WebElement toStationOption = driver.findElement(By.cssSelector("#pr_id_2_list li:first-child"));
 			wait.until(ExpectedConditions.elementToBeClickable(toStationOption));
 			toStationOption.click();
@@ -90,16 +136,17 @@ public class IRCTCBooking {
 			WebElement datePickerInput = driver
 					.findElement(By.cssSelector("span[class='ng-tns-c58-10 ui-calendar'] input"));
 			datePickerInput.sendKeys(Keys.CONTROL, "a", Keys.BACK_SPACE);
-			datePickerInput.sendKeys(bookingProperties.getProperty("journeyDate"));
+			datePickerInput.sendKeys(bookingProperties.getProperty(BookingProperty.JOURNEY_DATE.toString()).trim());
 			
 			// Journey Quota selection
 			WebElement journeyQuota = driver.findElement(By.id("journeyQuota"));
 			actions.moveToElement(journeyQuota).perform();;
 			journeyQuota.click();
 			
-			WebElement quotaOption = driver.findElement(By.cssSelector("div[class='ui-dropdown-items-wrapper ng-tns-c65-12']"))
-					.findElement(
-							By.cssSelector(String.format("li[aria-label='%s'", bookingProperties.getProperty("quota"))));
+			WebElement quotaOption = driver
+					.findElement(By.cssSelector("div[class='ui-dropdown-items-wrapper ng-tns-c65-12']"))
+					.findElement(By.cssSelector(String.format("li[aria-label='%s'",
+							bookingProperties.getProperty(BookingProperty.QUOTA.toString()).trim())));
 			actions.moveToElement(quotaOption).perform();
 			wait.until(ExpectedConditions.elementToBeClickable(quotaOption));
 			quotaOption.click();
@@ -107,32 +154,43 @@ public class IRCTCBooking {
 			// click search button to search train
 			trainSearchButton.click();
 			
-			WebElement train = driver.findElement(By.xpath(
-					String.format("//strong[contains(text(), '(%s)')]/ancestor::div[contains(@class, 'border-all')]",
-							bookingProperties.getProperty("trainNumber"))));
-			/*
-			 * Can comment this piece of code at the time of tatkal window (be careful though).
-			 */
-//			try {
-//				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(2));
-//				WebDriverWait wait1 = new WebDriverWait(driver, Duration.ofSeconds(2));
-//				wait1.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[class='loading-bg']")));
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			} finally {
-//				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
-//			}
+			WebElement train = driver.findElement(By.xpath(String.format(
+					"//strong[contains(text(), '(%s)')]/ancestor::div[contains(@class, 'border-all')]",
+							bookingProperties.getProperty(BookingProperty.TRAIN_NUMBER.toString()).trim())));
 			
+			// waiting for ad to load to prevent unnecessary error
+			if (!tatkalWindow) {
+				TimeUnit.SECONDS.sleep(alternateImplicitWaitTime);
+			}
+			
+			// scroll to the train (if needed)
 			actions.moveToElement(train).perform();
 			
 			// click train class
 			WebElement trainClassLink = train.findElement(
-					By.xpath(String.format(".//table//td//*[contains(text(), '%s')]/ancestor::div[@class='pre-avl']",
-							bookingProperties.getProperty("trainClass"))));
+					By.xpath(String.format(".//td//*[contains(text(), '%s')]/ancestor::td",
+							bookingProperties.getProperty(BookingProperty.TRAIN_CLASS.toString()).trim())));
 			actions.click(trainClassLink).perform();
 			
 			// click first available date (specified date)
-			WebElement seatAvailableLink = train.findElement(By.cssSelector("div[class*='AVAILABLE']"));
+			WebElement seatAvailableLink = null;
+			
+			if ("TATKAL".equalsIgnoreCase(bookingProperties.getProperty(BookingProperty.QUOTA.toString()).trim())) {
+				seatAvailableLink = train.findElement(
+						By.xpath(".//td//div[contains(@class, 'AVAILABLE')]/ancestor::td"));
+			} else {
+				seatAvailableLink = train.findElement(By.xpath(
+						String.format(".//td//strong[contains(text(), '%s')]/ancestor::td",
+								seatLinkDateSearch)));
+				
+				if (seatAvailableLink.findElements(By.cssSelector("div[class*='AVAILABLE']")).size() == 0) {
+					String message = "Seat not available for the given class for the provided date.";
+					jsExecutor.executeScript(String.format("window.alert('%s')", message));
+					TimeUnit.SECONDS.sleep(alternateImplicitWaitTime);
+					throw new RuntimeException(message);
+				}
+			}
+			
 			actions.click(seatAvailableLink).perform();
 			
 			// click book now
@@ -140,10 +198,12 @@ public class IRCTCBooking {
 			actions.click(bookTrainButton).perform();
 			
 			/*
-			 * Can comment this when booking during tatkal window and exact stations are mentioned.
+			 * To be used when exact stations are not mentioned.
+			 * Please provide exact stations and comment this piece of code
+			 * to save time (very crucial during tatkal window).
 			 */
 //			try {
-//				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(2));
+//				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(alternateImplicitWaitTime));
 //				WebElement confirmButton = driver.findElement(
 //						By.xpath("//span[@class='ui-button-text ui-clickable'][contains(text(), 'Yes')]"));
 //				confirmButton.click();
@@ -151,63 +211,84 @@ public class IRCTCBooking {
 //			} catch (Exception e) {
 //				e.printStackTrace();
 //			} finally {
-//				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
+//				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(defaultImplicitWaitTime));
 //			}
 			
 			/*
 			 * To be used outside the tatkal time window.
 			 */
-//			signIn(driver);
+			if (!tatkalWindow) {
+				signIn(driver, wait);
+			}
 			
 			/*
 			 * Code block to handle previous pending transaction popup, uncomment below
 			 * lines of code when booking outside tatkal time window and you have
 			 * pending transaction.
 			 */
-//			try {
-//				WebElement closeTransactionButton = driver.findElement(By.xpath(
-//						"//div[@aria-labelledby='ui-dialog-2-label'] //button[contains(text(), 'Close')]"));
-//				wait.until(ExpectedConditions.elementToBeClickable(closeTransactionButton));
-//				closeTransactionButton.click();
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
+			if (!tatkalWindow) {
+				try {
+					driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(alternateImplicitWaitTime));
+					WebElement closeTransactionButton = driver.findElement(By.xpath(
+							"//div[@aria-labelledby='ui-dialog-2-label'] //button[contains(text(), 'Close')]"));
+					wait.until(ExpectedConditions.elementToBeClickable(closeTransactionButton));
+					closeTransactionButton.click();
+				} catch (Exception e) {
+					e.printStackTrace();
+				} finally {
+					driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(defaultImplicitWaitTime));
+				}
+			}
 			
-			int passengerCount = Integer.parseInt(bookingProperties.getProperty("passengerCount"));
+			int passengerCount = Integer
+					.parseInt(bookingProperties.getProperty(BookingProperty.PASSENGER_COUNT.toString()).trim());
 			
 			if (passengerCount > 0) {
 				for (int i = 1; i <= passengerCount; i++) {
-					String[] passengerDetails = bookingProperties.getProperty("passenger" + i).split("\\|");
+					String[] passengerDetails = bookingProperties.getProperty("passenger" + i).trim()
+							.split("\\s*\\|\\s*");
 					
 					// add passenger details
 					List<WebElement> appPassengers = driver.findElements(By.tagName("app-passenger"));
+					WebElement appPassenger = appPassengers.get(i - 1);
 					
-					actions.moveToElement(appPassengers.get(i - 1));
+					actions.moveToElement(appPassenger);
 					
-					WebElement passengerNameElement = appPassengers.get(i - 1)
+					WebElement passengerNameElement = appPassenger
 							.findElement(By.cssSelector("input[placeholder='Passenger Name']"));
-					int maxPassengerNameLength = Integer.parseInt(passengerNameElement.getDomAttribute("maxLength"));
 					
 					// limiting to maximum characters allowed in the passenger name field
-					if (passengerDetails[0].length() > maxPassengerNameLength) {
-						passengerDetails[0] = passengerDetails[0].substring(0, maxPassengerNameLength);
+					String passengerNameMaxLength = passengerNameElement.getDomAttribute("maxLength");
+					if (passengerNameMaxLength != null) {
+						int maxPassengerNameLength = Integer.parseInt(passengerNameMaxLength);
+						
+						if (passengerDetails[0].length() > maxPassengerNameLength) {
+							passengerDetails[0] = passengerDetails[0].substring(0, maxPassengerNameLength);
+						}
 					}
 					
 					// fill passenger name
 					passengerNameElement.sendKeys(passengerDetails[0]);
 					
 					// fill passenger age
-					appPassengers.get(i - 1).findElement(By.cssSelector("input[placeholder='Age']"))
-							.sendKeys(passengerDetails[1]);
+					appPassenger.findElement(By.cssSelector("input[placeholder='Age']")).sendKeys(passengerDetails[1]);
 					
 					// select passenger gender
-					appPassengers.get(i - 1).findElement(By.cssSelector("select[formcontrolname='passengerGender']"))
+					appPassenger.findElement(By.cssSelector("select[formcontrolname='passengerGender']")).click();
+					appPassenger.findElement(
+							By.cssSelector(String.format("select[formcontrolname='passengerGender'] option[value='%s']",
+									passengerDetails[2])))
 							.click();
-					appPassengers.get(i - 1)
-							.findElement(By.cssSelector(
-									String.format("select[formcontrolname='passengerGender'] option[value='%s']",
-											passengerDetails[2])))
-							.click();
+					
+					// select passenger berth preference
+					if (passengerDetails.length >= 4) {
+						appPassenger.findElement(By.cssSelector("select[formcontrolname='passengerBerthChoice']"))
+								.click();
+						appPassenger.findElement(By.cssSelector(
+								String.format("select[formcontrolname='passengerBerthChoice'] option[value='%s']",
+										passengerDetails[3])))
+								.click();
+					}
 					
 					if (i < passengerCount) {
 						WebElement addPassengerLink = driver
@@ -239,8 +320,8 @@ public class IRCTCBooking {
 				WebElement continueButtonOnReview = driver.findElement(By.xpath(
 						"//button[@class='btnDefault train_Search'][contains(text(), 'Continue')]"));
 				
-				// increasing wait time for review the journey
-				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(40));
+				// increasing wait time to review the journey
+				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(defaultImplicitWaitTime * 2));
 				
 				WebElement irctcIPayOption = driver
 						.findElement(By.xpath("//span[contains(text(), 'IRCTC iPay')]/parent::div"));
@@ -254,12 +335,12 @@ public class IRCTCBooking {
 				// click on pay and book
 				WebElement payAndBookButton = driver.findElement(
 						By.xpath("//button[contains(text(), 'Pay & Book')][contains(@class, 'btn btn-primary')]"));
-				wait.until(ExpectedConditions.visibilityOf(payAndBookButton));
+				wait.until(ExpectedConditions.elementToBeClickable(payAndBookButton));
 //				payAndBookButton.click();
 				jsExecutor.executeScript("arguments[0].click()", payAndBookButton);
 				
 				// fill upi id
-				driver.findElement(By.id("vpaCheck")).sendKeys(bookingProperties.getProperty("upiVPA"));
+				driver.findElement(By.id("vpaCheck")).sendKeys(bookingProperties.getProperty(BookingProperty.UPI_ID.toString()).trim());
 				
 				// click pay
 				WebElement finalPayButton = driver.findElement(By.id("upi-sbmt"));
@@ -268,13 +349,13 @@ public class IRCTCBooking {
 				
 				closeBrowser = false;
 				
-				jsExecutor.executeScript("window.alert('Tatkal booking process successful. Hooray!!')");
+//				jsExecutor.executeScript("window.alert('Tatkal booking process successful. Hooray!!')");
 			}
 			
 //			TimeUnit.SECONDS.sleep(60);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw e;
 		} finally {
 			if (closeBrowser) {
 				driver.quit();
@@ -282,18 +363,34 @@ public class IRCTCBooking {
 		}
 	}
 
-	private static void signIn(WebDriver driver) {
-		driver.findElement(By.cssSelector("input[formcontrolname='userid']"))
-				.sendKeys(String.valueOf(bookingProperties.getProperty("irctcUsername")));
-		driver.findElement(By.cssSelector("input[formcontrolname='password']"))
-				.sendKeys(String.valueOf(bookingProperties.getProperty("irctcPassword")));
+	private static void signIn(WebDriver driver, WebDriverWait wait) {
+		WebElement userIdInput = driver.findElement(By.cssSelector("input[formcontrolname='userid']"));
+		userIdInput.sendKeys(bookingProperties.getProperty(BookingProperty.USERNAME.toString()).trim());
+		
+		WebElement passwordInput = driver.findElement(By.cssSelector("input[formcontrolname='password']"));
+		passwordInput.sendKeys(bookingProperties.getProperty(BookingProperty.PASSWORD.toString()).trim());
+		
 		WebElement signInButton = driver.findElement(By.xpath("//button[@type='submit'][contains(text(), 'SIGN IN')]"));
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
 		wait.until(ExpectedConditions.elementToBeClickable(signInButton));
-		JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
-		jsExecutor.executeScript("arguments[0].click()", signInButton);
 //		signInButton.click();
+		
 		wait.until(ExpectedConditions.invisibilityOf(signInButton));
+	}
+	
+	private static void preBookingChecks() {
+		ZonedDateTime irctcTatkalWindowStart = ZonedDateTime.now(indiaZoneId).withHour(8).withMinute(30).withSecond(0)
+				.truncatedTo(ChronoUnit.SECONDS);
+		ZonedDateTime irctcTatkalWindowEnd = ZonedDateTime.now(indiaZoneId).withHour(11).withMinute(30).withSecond(0)
+				.truncatedTo(ChronoUnit.SECONDS);
+		ZonedDateTime indiaDateTime = ZonedDateTime.now(indiaZoneId);
+
+		if (indiaDateTime.isAfter(irctcTatkalWindowStart) && indiaDateTime.isBefore(irctcTatkalWindowEnd)) {
+			IRCTCBooking.tatkalWindow = true;
+		}
+		
+		seatLinkDateSearch = LocalDate.parse(
+				bookingProperties.getProperty(BookingProperty.JOURNEY_DATE.toString()), journeyDateFormattter)
+				.format(dateTimeFormatter);
 	}
 	
 }

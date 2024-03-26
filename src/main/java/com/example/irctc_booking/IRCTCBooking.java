@@ -88,9 +88,9 @@ public class IRCTCBooking {
 	}
 
 	private static void startBooking() throws Exception {
-		final int defaultImplicitWaitTime = 30;
+		final int defaultImplicitWaitTime = 60;
 		final int defaultExplicitWaitTime = 30;
-		final int alternateImplicitWaitTime = 3;
+		final int alternateImplicitWaitTime = 2;
 		
 		final WebDriver driver = DriverUtility.getDriver(BrowserName.CHROME);
 		final WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(defaultExplicitWaitTime));
@@ -145,7 +145,7 @@ public class IRCTCBooking {
 			
 			WebElement quotaOption = driver
 					.findElement(By.cssSelector("div[class='ui-dropdown-items-wrapper ng-tns-c65-12']"))
-					.findElement(By.cssSelector(String.format("li[aria-label='%s'",
+					.findElement(By.cssSelector(String.format("li[aria-label='%s']",
 							bookingProperties.getProperty(BookingProperty.QUOTA.toString()).trim())));
 			actions.moveToElement(quotaOption).perform();
 			wait.until(ExpectedConditions.elementToBeClickable(quotaOption));
@@ -191,6 +191,8 @@ public class IRCTCBooking {
 				}
 			}
 			
+			// adding sleep time to maintain consistency in selecting available seat
+			TimeUnit.MILLISECONDS.sleep(200);
 			actions.click(seatAvailableLink).perform();
 			
 			// click book now
@@ -202,17 +204,16 @@ public class IRCTCBooking {
 			 * Please provide exact stations and comment this piece of code
 			 * to save time (very crucial during tatkal window).
 			 */
-//			try {
-//				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(alternateImplicitWaitTime));
-//				WebElement confirmButton = driver.findElement(
-//						By.xpath("//span[@class='ui-button-text ui-clickable'][contains(text(), 'Yes')]"));
-//				confirmButton.click();
-//				wait.until(ExpectedConditions.invisibilityOf(confirmButton));
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			} finally {
-//				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(defaultImplicitWaitTime));
-//			}
+			try {
+				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(1));
+				WebElement confirmButton = driver.findElement(
+						By.xpath("//span[@class='ui-button-text ui-clickable'][contains(text(), 'Yes')]"));
+				confirmButton.click();
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(defaultImplicitWaitTime));
+			}
 			
 			/*
 			 * To be used outside the tatkal time window.
@@ -298,6 +299,12 @@ public class IRCTCBooking {
 					}
 				}
 				
+				// select 'Consider for Auto Upgradation.' checkbox
+				if (!tatkalWindow) {
+                    WebElement autoUpgradationCheckbox = driver.findElement(By.cssSelector("[for='autoUpgradation']"));
+				    actions.click(autoUpgradationCheckbox).perform();
+                }
+				
 				// select 'book only if confirm births are allotted' checkbox
 				WebElement confirmBirthCheckbox = driver.findElement(By.cssSelector("[for='confirmberths']"));
 				actions.click(confirmBirthCheckbox).perform();
@@ -305,7 +312,7 @@ public class IRCTCBooking {
 				// select 'pay through bhim/upi' radio button
 				WebElement paymentTypeRadio = driver
 						.findElement(By.cssSelector("input[type='radio'][name='paymentType'][value='2']"));
-				actions.moveToElement(paymentTypeRadio);
+				actions.moveToElement(paymentTypeRadio).perform();
 				jsExecutor.executeScript("arguments[0].click()", paymentTypeRadio);
 				
 				// click continue button
@@ -388,7 +395,7 @@ public class IRCTCBooking {
 			IRCTCBooking.tatkalWindow = true;
 		}
 		
-		seatLinkDateSearch = LocalDate.parse(
+		IRCTCBooking.seatLinkDateSearch = LocalDate.parse(
 				bookingProperties.getProperty(BookingProperty.JOURNEY_DATE.toString()), journeyDateFormattter)
 				.format(dateTimeFormatter);
 	}
